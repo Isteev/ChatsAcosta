@@ -6,7 +6,7 @@ const rdbConnect = async function () {
     try {
         const conn = await rethinkdb.connect({
             // host: process.env.RETHINKDB_HOST || "localhost",
-            host: "192.168.1.19",
+            host: process.env.RETHINKDB_HOST,
             port: process.env.RETHINKDB_PORT || 28015,
             username: process.env.RETHINKDB_USERNAME || "admin",
             password: process.env.RETHINKDB_PASSWORD || "",
