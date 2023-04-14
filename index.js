@@ -76,7 +76,7 @@ io.on("connection", (socket) => {
 //init changes
 channelsService.changesMessageByChannel();
 
-sequelizeConn.sync({ alter: true });
+sequelizeConn.sync({ alter: false });
 
 server.listen(3000, () => {
     console.log("server is running on port " + 3000);

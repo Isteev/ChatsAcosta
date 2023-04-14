@@ -30,4 +30,34 @@ colaboratorController.getByCompany = (req, res) => {
         });
 };
 
+colaboratorController.deleteColaborator = (req, res) => {
+    const {
+        params: { id },
+    } = req;
+
+    colaboratorServices
+        .deleteColaborator(id)
+        .then(({ status, result }) => {
+            res.status(status).send(result);
+        })
+        .catch(({ status, result }) => {
+            res.status(status).send(result);
+        });
+};
+
+colaboratorController.detail = (req, res) => {
+    const {
+        params: { id },
+    } = req;
+
+    colaboratorServices
+        .detail(id)
+        .then(({ status, result }) => {
+            res.status(status).send(result);
+        })
+        .catch(({ status, result }) => {
+            res.status(status).send(result);
+        });
+};
+
 export default colaboratorController;
