@@ -1,5 +1,9 @@
-import ioEmmit from "../../../index.js";
-import { badreq, fatalError, success } from "../../utils/utils.js";
+import {
+    badreq,
+    fatalError,
+    success,
+    successPaginate,
+} from "../../utils/utils.js";
 import channelsService from "../channels/channelsServices.js";
 import { MessagesModel } from "./messagesModel.js";
 
@@ -38,6 +42,39 @@ messageService.addAction = (body) => {
                 .catch((err) => {
                     reject(err);
                 });
+        } catch (error) {
+            reject(fatalError(error.message));
+        }
+    });
+};
+
+messageService.getByChannelPaginate = (
+    channel_id,
+    limit = 10,
+    currentPage = 1
+) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const messages = await MessagesModel.findAndCountAll({
+                where: {
+                    channel_id: channel_id,
+                },
+                order: [["id", "desc"]],
+                limit: parseInt(limit),
+                offset: limit * (currentPage - 1),
+            });
+
+            const itemCount = messages.count;
+            const pageCount = Math.ceil(itemCount / limit);
+
+            resolve(
+                successPaginate(
+                    messages.rows,
+                    currentPage < pageCount,
+                    pageCount,
+                    messages.count
+                )
+            );
         } catch (error) {
             reject(fatalError(error.message));
         }

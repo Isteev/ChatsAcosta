@@ -15,4 +15,20 @@ messageController.addAction = (req, res) => {
         });
 };
 
+messageController.getByChannelPaginate = (req, res) => {
+    const {
+        params: { channel_id },
+        query: { limit, page },
+    } = req;
+
+    messageService
+        .getByChannelPaginate(channel_id, limit, page)
+        .then(({ status, result }) => {
+            res.status(status).send(result);
+        })
+        .catch(({ status, result }) => {
+            res.status(status).send(result);
+        });
+};
+
 export default messageController;

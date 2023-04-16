@@ -67,6 +67,7 @@ colaboratorServices.getByCompany = (company_id) => {
         try {
             const colaborator = await ColaboratorModel.findAll({
                 where: { company_id: company_id, status: 1 },
+                include: [CompanyModel],
             });
 
             if (colaborator) {

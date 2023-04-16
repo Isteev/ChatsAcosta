@@ -13,53 +13,61 @@ const channelsService = {};
 channelsService.addAction = (body) => {
     return new Promise(async (resolve, reject) => {
         try {
+            //valid company by uuid
             companysServices
-                .getById(body.company_id)
-                .then(({ result: { data } }) => {
-                    if (data) {
-                        colaboratorServices
-                            .getFirstByCompany(body.company_id)
-                            .then(async ({ result: { data } }) => {
-                                if (data) {
-                                    const channel = await ChannelModel.create({
-                                        company_id: body.company_id,
-                                        colaborator_id: data.id,
-                                        user_id: body.user_id,
-                                    });
+                .validCompanyUuid(body.company_uuid)
+                .then((company) => {
+                    channelsService
+                        .getChannelByUser(body.user_id)
+                        .then((channel) => {
+                            if (channel) {
+                                resolve(success(channel));
+                            } else {
+                                //get colaborator by company
+                                colaboratorServices
+                                    .getFirstByCompany(company.id)
+                                    .then(async ({ result: { data } }) => {
+                                        if (data) {
+                                            const channel =
+                                                await ChannelModel.create({
+                                                    company_id: company.id,
+                                                    colaborator_id: data.id,
+                                                    user_id: body.user_id,
+                                                });
 
-                                    ioEmmit({
-                                        to: `${data.id}${body.company_id}`,
-                                        data: channel,
-                                        key: "channel_by_colaborator",
-                                    });
+                                            ioEmmit({
+                                                to: `${data.id}${company.id}`,
+                                                data: channel,
+                                                key: "channel_by_colaborator",
+                                            });
 
-                                    if (channel) {
-                                        resolve(success(channel));
-                                    } else {
-                                        reject(
-                                            badreq(
-                                                "No fue posible crear el channel"
-                                            )
-                                        );
-                                    }
-                                } else {
-                                    reject(
-                                        notfound(
-                                            "No hay colaboradores activos en esta compañia"
-                                        )
-                                    );
-                                }
-                            })
-                            .catch((err) => {
-                                reject(err);
-                            });
-                    } else {
-                        reject(notfound("Compañia no existe"));
-                    }
+                                            if (channel) {
+                                                resolve(success(channel));
+                                            } else {
+                                                reject(
+                                                    badreq(
+                                                        "No fue posible crear el channel"
+                                                    )
+                                                );
+                                            }
+                                        } else {
+                                            reject(
+                                                notfound(
+                                                    "No hay colaboradores activos en esta compañia"
+                                                )
+                                            );
+                                        }
+                                    })
+                                    .catch((err) => {
+                                        reject(err);
+                                    });
+                            }
+                        })
+                        .catch((err) => {
+                            reject(err);
+                        });
                 })
-                .catch((err) => {
-                    reject(err);
-                });
+                .catch((err) => reject(err));
         } catch (error) {
             reject(fatalError(error.message));
         }
@@ -122,6 +130,20 @@ channelsService.changesMessageByChannel = async () => {
                 });
             }
         });
+};
+
+channelsService.getChannelByUser = async (user_id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const channel = await ChannelModel.findOne({
+                where: { user_id: user_id },
+            });
+
+            resolve(channel);
+        } catch (error) {
+            reject(fatalError(error.message));
+        }
+    });
 };
 
 export default channelsService;

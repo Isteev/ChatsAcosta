@@ -13,6 +13,21 @@ export const CompanyModel = sequelizeConn.define(
             type: DataTypes.STRING,
             allowNull: false,
         },
+        email: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            unique: true,
+        },
+        slug: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            unique: true,
+        },
+        uuid: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            unique: true,
+        },
         status: {
             type: DataTypes.TINYINT,
             defaultValue: 1,

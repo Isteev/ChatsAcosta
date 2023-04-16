@@ -53,12 +53,23 @@ export const unauth = (message = "token no valido") => {
     };
 };
 
-export const badreq = (message = "error") => {
+export const badreq = (message = "error", data) => {
     return {
         status: 400,
         result: {
             status: "error",
             message: message,
+            data,
         },
     };
+};
+
+export const makeRequired = (value, keys) => {
+    const response = [];
+
+    keys.forEach((element) => {
+        if (!value[element]) response.push(`${element} es requerido`);
+    });
+
+    return response;
 };
