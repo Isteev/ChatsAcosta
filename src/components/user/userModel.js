@@ -12,7 +12,6 @@ export const UserModel = sequelizeConn.define(
         email: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true,
         },
         company_id: {
             type: DataTypes.INTEGER,
