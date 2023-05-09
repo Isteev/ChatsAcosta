@@ -20,11 +20,11 @@ export const DesignModel = sequelizeConn.define(
         },
         send_text_color: {
             type: DataTypes.STRING,
-            defaultValue: "#fff",
+            defaultValue: "#ffffff",
         },
         receive_text_color: {
             type: DataTypes.STRING,
-            defaultValue: "#fff",
+            defaultValue: "#ffffff",
         },
         app_bar_color: {
             type: DataTypes.STRING,
