@@ -1,33 +1,21 @@
 import { DataTypes } from "sequelize";
 import { sequelizeConn } from "../../config/sequalize.js";
 
-export const ChannelModel = sequelizeConn.define(
-    "channel",
+export const UserModel = sequelizeConn.define(
+    "user",
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        company_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        user_email: {
+        email: {
             type: DataTypes.STRING,
             allowNull: false,
+            unique: true,
         },
-        user_id: {
+        company_id: {
             type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        colaborator_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        status: {
-            type: DataTypes.TINYINT,
-            defaultValue: 1,
             allowNull: false,
         },
     },
@@ -36,3 +24,5 @@ export const ChannelModel = sequelizeConn.define(
         freezeTableName: false,
     }
 );
+
+export default UserModel;

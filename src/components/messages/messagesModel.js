@@ -34,6 +34,10 @@ export const MessagesModel = sequelizeConn.define(
             type: DataTypes.INTEGER,
             allowNull: false,
         },
+        meeting_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
         message_status: {
             type: DataTypes.ENUM("save", "received", "read"),
             defaultValue: "save",

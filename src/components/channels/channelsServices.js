@@ -2,7 +2,9 @@ import ioEmmit from "../../../index.js";
 import { badreq, fatalError, notfound, success } from "../../utils/utils.js";
 import colaboratorServices from "../colaborator/colaboratorService.js";
 import companysServices from "../company/companysServices.js";
+import userServices from "../user/userServices.js";
 import { ChannelModel } from "./channelsModel.js";
+import { DesignModel } from "../design/designModel.js";
 
 //rethinkdb
 import getRethinkDB from "../../config/rethinkdb.js";
@@ -12,65 +14,72 @@ const channelsService = {};
 
 channelsService.addAction = (body) => {
     return new Promise(async (resolve, reject) => {
-        try {
-            //valid company by uuid
-            companysServices
-                .validCompanyUuid(body.company_uuid)
-                .then((company) => {
-                    channelsService
-                        .getChannelByUser(body.user_id)
-                        .then((channel) => {
-                            if (channel) {
-                                resolve(success(channel));
-                            } else {
-                                //get colaborator by company
-                                colaboratorServices
-                                    .getFirstByCompany(company.id)
-                                    .then(async ({ result: { data } }) => {
-                                        if (data) {
-                                            const channel =
-                                                await ChannelModel.create({
-                                                    company_id: company.id,
-                                                    colaborator_id: data.id,
-                                                    user_id: body.user_id,
+        companysServices
+            .validCompanyUuid(body.company_uuid)
+            .then((company) => {
+                channelsService
+                    .getChannelByUser(body.user_email, company.id)
+                    .then((channel) => {
+                        if (channel) {
+                            resolve(success(channel));
+                        } else {
+                            userServices
+                                .addAction({
+                                    email: body.user_email,
+                                    company_id: company.id,
+                                })
+                                .then(({ result: { data } }) => {
+                                    const user = data;
+
+                                    //get colaborator by company
+                                    colaboratorServices
+                                        .getFirstByCompany(company.id)
+                                        .then(async ({ result: { data } }) => {
+                                            if (data) {
+                                                const channel =
+                                                    await ChannelModel.create({
+                                                        company_id: company.id,
+                                                        colaborator_id: data,
+                                                        user_id: user.id,
+                                                        user_email:
+                                                            body.user_email,
+                                                    });
+
+                                                ioEmmit({
+                                                    to: `${data}${company.id}`,
+                                                    data: channel,
+                                                    key: "channel_by_colaborator",
                                                 });
 
-                                            ioEmmit({
-                                                to: `${data.id}${company.id}`,
-                                                data: channel,
-                                                key: "channel_by_colaborator",
-                                            });
-
-                                            if (channel) {
-                                                resolve(success(channel));
+                                                if (channel) {
+                                                    resolve(success(channel));
+                                                } else {
+                                                    reject(
+                                                        badreq(
+                                                            "No fue posible crear el channel"
+                                                        )
+                                                    );
+                                                }
                                             } else {
                                                 reject(
-                                                    badreq(
-                                                        "No fue posible crear el channel"
+                                                    notfound(
+                                                        "No hay colaboradores activos en este momento"
                                                     )
                                                 );
                                             }
-                                        } else {
-                                            reject(
-                                                notfound(
-                                                    "No hay colaboradores activos en esta compañia"
-                                                )
-                                            );
-                                        }
-                                    })
-                                    .catch((err) => {
-                                        reject(err);
-                                    });
-                            }
-                        })
-                        .catch((err) => {
-                            reject(err);
-                        });
-                })
-                .catch((err) => reject(err));
-        } catch (error) {
-            reject(fatalError(error.message));
-        }
+                                        })
+                                        .catch((err) => {
+                                            reject(err);
+                                        });
+                                })
+                                .catch((err) => reject(err));
+                        }
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    });
+            })
+            .catch((err) => reject(err));
     });
 };
 
@@ -132,14 +141,37 @@ channelsService.changesMessageByChannel = async () => {
         });
 };
 
-channelsService.getChannelByUser = async (user_id) => {
+channelsService.getChannelByUser = async (user_email, company) => {
     return new Promise(async (resolve, reject) => {
         try {
             const channel = await ChannelModel.findOne({
-                where: { user_id: user_id },
+                where: {
+                    user_email: user_email,
+                    company_id: company,
+                    status: 1,
+                },
             });
 
-            resolve(channel);
+            if (!channel) {
+                return resolve(null);
+            }
+
+            const active = await colaboratorServices.colaboratorIsActive(
+                channel.colaborator_id
+            );
+
+            if (!active) {
+                colaboratorServices
+                    .getFirstByCompany(channel.company_id)
+                    .then(async ({ result: { data } }) => {
+                        channel.colaborator_id = data;
+                        await channel.save();
+                        resolve(channel);
+                    })
+                    .catch((e) => reject(e));
+            } else {
+                resolve(channel);
+            }
         } catch (error) {
             reject(fatalError(error.message));
         }

@@ -16,6 +16,7 @@ const messageService = {};
 messageService.addAction = (body) => {
     return new Promise(async (resolve, reject) => {
         try {
+            delete body.id;
             const conn = await getRethinkDB();
 
             channelsService

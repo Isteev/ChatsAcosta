@@ -13,6 +13,8 @@ import channelsRouter from "./src/components/channels/channelsRoute.js";
 import companysRouter from "./src/components/company/companysRoute.js";
 import colaboratorRouter from "./src/components/colaborator/colaboratorRoute.js";
 import designRoute from "./src/components/design/designRoute.js";
+import meetingRoute from "./src/components/meetings/meetingsRoute.js";
+import userRoute from "./src/components/user/userRoute.js";
 
 //services
 import channelsService from "./src/components/channels/channelsServices.js";
@@ -27,6 +29,8 @@ app.use("/channels", channelsRouter);
 app.use("/company", companysRouter);
 app.use("/colaborator", colaboratorRouter);
 app.use("/design", designRoute);
+app.use("/meeting", meetingRoute);
+app.use("/user", userRoute);
 
 app.get("/", (_, res) => {
     res.send("The server is Ok");
@@ -78,7 +82,7 @@ io.on("connection", (socket) => {
 //init changes
 channelsService.changesMessageByChannel();
 
-sequelizeConn.sync();
+sequelizeConn.sync({ alter: false });
 
 server.listen(3000, () => {
     console.log("server is running on port " + 3000);

@@ -1,6 +1,8 @@
+import { QueryTypes } from "sequelize";
 import { badreq, fatalError, notfound, success } from "../../utils/utils.js";
 import { CompanyModel } from "../company/companyModel.js";
 import { ColaboratorModel } from "./colaboratorsModel.js";
+import { sequelizeConn } from "../../config/sequalize.js";
 
 const colaboratorServices = {};
 
@@ -42,18 +44,22 @@ colaboratorServices.addAction = (body) => {
 colaboratorServices.getFirstByCompany = (company_id) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const colaborator = await ColaboratorModel.findOne({
-                where: {
-                    company_id: company_id,
-                    status: 1,
-                },
-            });
+            const result = await sequelizeConn.query(
+                `SELECT count(1) as count, c.id FROM chats.colaborators as c
+                left join chats.channels as ch on c.id = ch.colaborator_id
+                where c.status = 1 and c.company_id = ${company_id}
+                group by c.id
+                order by count;`,
+                {
+                    type: QueryTypes.SELECT,
+                }
+            );
 
-            if (colaborator) {
-                resolve(success(colaborator));
+            if (result.length > 0) {
+                resolve(success(result[0]["id"]));
             } else {
                 reject(
-                    notfound("No hay colaboradores activos en esta compañia")
+                    notfound("No hay colaboradores activos en este momento")
                 );
             }
         } catch (error) {
@@ -120,6 +126,18 @@ colaboratorServices.detail = (id) => {
             reject(fatalError(error.message));
         }
     });
+};
+
+colaboratorServices.colaboratorIsActive = async (id) => {
+    const colaborator = await ColaboratorModel.findOne({
+        where: { id: id, status: 1 },
+    });
+
+    if (colaborator) {
+        return true;
+    } else {
+        return false;
+    }
 };
 
 export default colaboratorServices;

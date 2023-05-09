@@ -165,11 +165,9 @@ companysServices.validCompanyUuid = (uuid) => {
             });
 
             if (!company) {
-                reject(badreq(`la compañia con id ${company_id} no existe`));
+                reject(badreq(`la compañia con uuid ${uuid} no existe`));
             } else if (company.active == 0) {
-                reject(
-                    badreq(`la compañia con id ${company_id} no esta activa`)
-                );
+                reject(badreq(`la compañia con uuid ${uuid} no esta activa`));
             } else {
                 resolve(company);
             }
