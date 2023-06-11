@@ -1,6 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import http from "http";
+import cors from "cors";
 import "dotenv/config.js";
 
 //config
@@ -22,6 +23,7 @@ import channelsService from "./src/components/channels/channelsServices.js";
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors());
 
 //apis
 app.use("/messages", messagesRoute);
