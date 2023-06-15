@@ -53,6 +53,29 @@ companysServices.addAction = async (body) => {
     }
 };
 
+companysServices.updateAction = (company_id, body) => {
+    return new Promise((resolve, reject) => {
+        companysServices
+            .validCompany(company_id)
+            .then(async () => {
+                const company = await CompanyModel.update(body, {
+                    where: {
+                        id: company_id,
+                    },
+                });
+
+                if (company) {
+                    resolve(success(body));
+                } else {
+                    resolve(notfound("No se pudo actualizar la compañia"));
+                }
+            })
+            .catch((error) => {
+                reject(error);
+            });
+    });
+};
+
 companysServices.getById = (id) => {
     return new Promise(async (resolve, reject) => {
         try {

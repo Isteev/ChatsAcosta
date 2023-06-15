@@ -19,6 +19,7 @@ import userRoute from "./src/components/user/userRoute.js";
 
 //services
 import channelsService from "./src/components/channels/channelsServices.js";
+import path from "path";
 
 const app = express();
 app.use(bodyParser.json());
@@ -36,6 +37,12 @@ app.use("/user", userRoute);
 
 app.get("/", (_, res) => {
     res.send("The server is Ok");
+});
+
+app.get("/page", (req, res) => {
+    res.sendFile("index.html", {
+        root: path.join("", "../../flutter/chat_webview/build/web/"),
+    });
 });
 
 //init socket

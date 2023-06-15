@@ -15,6 +15,22 @@ companysController.addAction = (req, res) => {
         });
 };
 
+companysController.updateAction = (req, res) => {
+    const {
+        body,
+        params: { id },
+    } = req;
+
+    companysServices
+        .updateAction(id, body)
+        .then(({ status, result }) => {
+            res.status(status).send(result);
+        })
+        .catch(({ status, result }) => {
+            res.status(status).send(result);
+        });
+};
+
 companysController.getAction = (req, res) => {
     const {
         params: { id },
