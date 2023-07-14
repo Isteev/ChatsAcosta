@@ -1,4 +1,4 @@
-import { QueryTypes } from "sequelize";
+import { Op, QueryTypes } from "sequelize";
 import { badreq, fatalError, notfound, success } from "../../utils/utils.js";
 import { CompanyModel } from "../company/companyModel.js";
 import { ColaboratorModel } from "./colaboratorsModel.js";
@@ -72,7 +72,7 @@ colaboratorServices.getByCompany = (company_id) => {
     return new Promise(async (resolve, reject) => {
         try {
             const colaborator = await ColaboratorModel.findAll({
-                where: { company_id: company_id, status: 1 },
+                where: { company_id: company_id, status: 1, profile_id: 1 },
                 include: [CompanyModel],
             });
 
