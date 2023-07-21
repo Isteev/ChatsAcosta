@@ -120,6 +120,7 @@ companysServices.getAllCompanies = (id) => {
         try {
             const company = await CompanyModel.findAll({
                 where: { status: 1 },
+                order: [["id", "desc"]],
             });
 
             if (company) {
