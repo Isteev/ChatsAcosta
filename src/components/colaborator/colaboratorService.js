@@ -47,7 +47,7 @@ colaboratorServices.getFirstByCompany = (company_id) => {
             const result = await sequelizeConn.query(
                 `SELECT count(1) as count, c.id FROM chats.colaborators as c
                 left join chats.channels as ch on c.id = ch.colaborator_id
-                where c.status = 1 and c.company_id = ${company_id}
+                where c.status = 1 and c.company_id = ${company_id} and profile_id = 1
                 group by c.id
                 order by count;`,
                 {
