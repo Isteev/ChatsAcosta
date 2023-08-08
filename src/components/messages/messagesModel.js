@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import { sequelizeConn } from "../../config/sequalize.js";
+import { ChannelModel } from "../channels/channelsModel.js";
 
 export const MessagesModel = sequelizeConn.define(
     "messages",
@@ -57,3 +58,11 @@ export const MessagesModel = sequelizeConn.define(
         freezeTableName: true,
     }
 );
+
+
+ChannelModel.hasMany(MessagesModel, {as: "messages", foreignKey: "channel_id"});
+
+MessagesModel.belongsTo(ChannelModel, {
+    foreignKey: "company_id",
+    sourceKey: "id",
+});

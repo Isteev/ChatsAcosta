@@ -9,6 +9,7 @@ import { DesignModel } from "../design/designModel.js";
 //rethinkdb
 import getRethinkDB from "../../config/rethinkdb.js";
 import r from "rethinkdb";
+import { MessagesModel } from "../messages/messagesModel.js";
 
 const channelsService = {};
 
@@ -103,8 +104,23 @@ channelsService.getByColaborator = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
             const channels = await ChannelModel.findAll({
-                where: { colaborator_id: id },
+                where: { colaborator_id: id, status: 1 },
                 order: [["id", "DESC"]],
+                include: {
+                    model: MessagesModel,
+                    required: false,
+                    as: "messages",
+                    attributes: [
+                        "content",
+                        "type",
+                        "message_status",
+                        "message_user_type",
+                        "channel_id",
+                    ],
+                    where: { status: 1 },
+                    order: [["id", "DESC"]],
+                    limit: 1,
+                },
             });
 
             if (channels.length > 0) {
@@ -134,6 +150,12 @@ channelsService.changesMessageByChannel = async () => {
                             to: message.channel_id.toString(),
                             key: "send_message",
                             data: message,
+                        });
+
+                        ioEmmit({
+                            to: `${message.colaborator_id}${message.company_id}`,
+                            data: message,
+                            key: "message_channel_by_colaborator",
                         });
                     }
                 });

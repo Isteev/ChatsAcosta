@@ -7,5 +7,8 @@ export const sequelizeConn = new Sequelize(
     {
         host: process.env.DB_HOST,
         dialect: "mysql",
-    }
+        dialectOptions: {
+            timezone: "+00:00"
+        }
+    },
 );
