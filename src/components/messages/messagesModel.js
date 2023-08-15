@@ -15,7 +15,7 @@ export const MessagesModel = sequelizeConn.define(
             allowNull: false,
         },
         type: {
-            type: DataTypes.ENUM("text", "image", "file"),
+            type: DataTypes.ENUM("text", "image", "file", "end"),
             allowNull: false,
             defaultValue: "text",
         },

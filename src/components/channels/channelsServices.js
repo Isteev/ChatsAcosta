@@ -70,17 +70,17 @@ channelsService.addAction = (body) => {
                                             }
                                         })
                                         .catch((err) => {
-                                            reject(err);
+                                            reject(badreq(err));
                                         });
                                 })
-                                .catch((err) => reject(err));
+                                .catch((err) => reject(badreq(err)));
                         }
                     })
                     .catch((err) => {
-                        reject(err);
+                        reject(badreq(err));
                     });
             })
-            .catch((err) => reject(err));
+            .catch((err) => reject(badreq(err)));
     });
 };
 
@@ -186,8 +186,22 @@ channelsService.getChannelByUser = async (user_email, company) => {
                 colaboratorServices
                     .getFirstByCompany(channel.company_id)
                     .then(async ({ result: { data } }) => {
+                        const lastColaborator = channel.colaborator_id ;
                         channel.colaborator_id = data;
                         await channel.save();
+
+                        ioEmmit({
+                            to: `${data}${channel.company_id}`,
+                            data: channel,
+                            key: "channel_by_colaborator",
+                        });
+
+                        ioEmmit({
+                            to: `${lastColaborator}${channel.company_id}`,
+                            data: channel.id,
+                            key: "reasign_channel_by_colaborator",
+                        });
+
                         resolve(channel);
                     })
                     .catch((e) => reject(e));

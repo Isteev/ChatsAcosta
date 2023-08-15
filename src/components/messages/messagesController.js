@@ -15,6 +15,19 @@ messageController.addAction = (req, res) => {
         });
 };
 
+messageController.sendEndMessage = (req, res) => {
+    const { body } = req;
+
+    messageService
+        .sendEndMessage(body)
+        .then(({ status = 200, result }) => {
+            res.status(status).send(result);
+        })
+        .catch(({ status = 500, result }) => {
+            res.status(status).send(result);
+        });
+};
+
 messageController.getByChannelPaginate = (req, res) => {
     const {
         params: { channel_id },

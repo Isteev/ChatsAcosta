@@ -60,4 +60,20 @@ colaboratorController.detail = (req, res) => {
         });
 };
 
+colaboratorController.setActiveStatus = (req, res) => {
+    const {
+        params: { id },
+        body
+    } = req;
+
+    colaboratorServices
+        .setActiveStatus(id, body)
+        .then(({ status, result }) => {
+            res.status(status).send(result);
+        })
+        .catch(({ status, result }) => {
+            res.status(status).send(result);
+        });
+};
+
 export default colaboratorController;
