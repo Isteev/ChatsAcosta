@@ -20,6 +20,10 @@ export const ColaboratorModel = sequelizeConn.define(
             type: DataTypes.TINYINT,
             defaultValue: 1,
         },
+        email: {
+            type: DataTypes.STRING,
+            defaultValue: 1,
+        },
         status: {
             type: DataTypes.TINYINT,
             defaultValue: 1,

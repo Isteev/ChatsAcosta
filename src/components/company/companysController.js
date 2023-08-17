@@ -75,11 +75,11 @@ companysController.getAllCompanies = (req, res) => {
 companysController.changeActive = (req, res) => {
     const {
         params: { id },
-        query: { active },
+        body,
     } = req;
 
     companysServices
-        .changeActive(id, active)
+        .changeActive(id, body.active)
         .then(({ status, result }) => {
             res.status(status).send(result);
         })
