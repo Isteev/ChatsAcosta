@@ -48,7 +48,7 @@ colaboratorServices.getFirstByCompany = (company_id) => {
                 `SELECT count(ch.id) as count, c.id FROM chats.colaborators as c
                 left join chats.channels as ch on c.id = ch.colaborator_id
                 where c.status = 1 and c.company_id = ${company_id} and profile_id = 1 and active = 1
-                group by ch.id
+                group by c.id
                 order by count`,
                 {
                     type: QueryTypes.SELECT,
@@ -141,22 +141,21 @@ colaboratorServices.colaboratorIsActive = async (id) => {
 };
 
 colaboratorServices.setActiveStatus = async (id, body) => {
-    
     try {
         const colaborator = await ColaboratorModel.findOne({
             where: { id: id, status: 1 },
         });
 
-        if(!colaborator) {
+        if (!colaborator) {
             return badreq("Colaborador no existe");
         }
-    
+
         colaborator.active = body.active;
         await colaborator.save();
 
         return success(colaborator);
     } catch (error) {
-        return fatalError(error.message)
+        return fatalError(error.message);
     }
 };
 
