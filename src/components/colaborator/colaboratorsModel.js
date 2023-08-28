@@ -24,6 +24,13 @@ export const ColaboratorModel = sequelizeConn.define(
             type: DataTypes.STRING,
             defaultValue: 1,
         },
+        phone: {
+            type: DataTypes.INTEGER,
+        },
+        document: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
         status: {
             type: DataTypes.TINYINT,
             defaultValue: 1,

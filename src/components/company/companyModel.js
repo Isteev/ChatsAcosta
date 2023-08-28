@@ -18,15 +18,17 @@ export const CompanyModel = sequelizeConn.define(
             allowNull: false,
             unique: true,
         },
-        slug: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            unique: true,
-        },
         uuid: {
             type: DataTypes.STRING,
             allowNull: false,
             unique: true,
+        },
+        nit: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        phone: {
+            type: DataTypes.INTEGER,
         },
         status: {
             type: DataTypes.TINYINT,

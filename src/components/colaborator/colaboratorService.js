@@ -15,15 +15,31 @@ colaboratorServices.addAction = (body) => {
             });
 
             if (!company) {
-                reject(
+                return reject(
                     notfound(`La compañia con id ${body?.company_id} no existe`)
                 );
             }
 
             if (company?.active == 0) {
-                reject(
+                return reject(
                     notfound(
                         `La compañia con id ${body?.company_id} se encuentra inactiva`
+                    )
+                );
+            }
+
+            const found = await ColaboratorModel.findOne({
+                where: {
+                    company_id: company.id,
+                    document: body.document,
+                    status: 1,
+                },
+            });
+
+            if (found) {
+                return reject(
+                    notfound(
+                        `Ya existe un usuario con este documento en la compañia.`
                     )
                 );
             }

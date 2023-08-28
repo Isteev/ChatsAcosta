@@ -13,7 +13,7 @@ const companysServices = {};
 
 companysServices.addAction = async (body) => {
     try {
-        const required = makeRequired(body, ["name", "email", "slug"]);
+        const required = makeRequired(body, ["name", "email", "nit", 'phone']);
 
         if (required.length > 0) {
             reject(badreq("valores requeridos", required));
@@ -28,13 +28,13 @@ companysServices.addAction = async (body) => {
             return badreq(`Este correo ya esta registrado`);
         }
 
-        const validSlug = await CompanyModel.findOne({
-            where: { status: 1, slug: body.slug },
-            attributes: ["slug"],
+        const validNit = await CompanyModel.findOne({
+            where: { status: 1, nit: body.nit },
+            attributes: ["nit"],
         });
 
-        if (validSlug) {
-            return badreq(`Ya existe una compañia con este mismo slug`);
+        if (validNit) {
+            return badreq(`Ya existe una compañia con este mismo nit`);
         }
 
         body.uuid = uuidv4();
@@ -46,7 +46,7 @@ companysServices.addAction = async (body) => {
 
             return success(company);
         } else {
-            reject(badreq("No fue posible crear la compañia"));
+            badreq("No fue posible crear la compañia");
         }
     } catch (error) {
         return fatalError(error.message);
