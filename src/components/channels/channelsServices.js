@@ -10,6 +10,7 @@ import { DesignModel } from "../design/designModel.js";
 import getRethinkDB from "../../config/rethinkdb.js";
 import r from "rethinkdb";
 import { MessagesModel } from "../messages/messagesModel.js";
+import { ColaboratorModel } from "../colaborator/colaboratorsModel.js";
 
 const channelsService = {};
 
@@ -186,7 +187,7 @@ channelsService.getChannelByUser = async (user_email, company) => {
                 colaboratorServices
                     .getFirstByCompany(channel.company_id)
                     .then(async ({ result: { data } }) => {
-                        const lastColaborator = channel.colaborator_id ;
+                        const lastColaborator = channel.colaborator_id;
                         channel.colaborator_id = data;
                         await channel.save();
 

@@ -11,6 +11,9 @@ import { MessagesModel } from "./messagesModel.js";
 import getRethinkDB from "../../config/rethinkdb.js";
 import r from "rethinkdb";
 import { MeetignsModel } from "../meetings/meetingsModel.js";
+import colaboratorServices from "../colaborator/colaboratorService.js";
+import { ColaboratorModel } from "../colaborator/colaboratorsModel.js";
+import { Sequelize } from "sequelize";
 
 const messageService = {};
 
@@ -29,8 +32,15 @@ messageService.addAction = (body) => {
                     });
 
                     if (newMessage) {
+                        const colaborator = await colaboratorServices.getByid(data.colaborator_id);
+
+                        const finalMessage = {
+                            ...newMessage.dataValues,
+                            colaborator: colaborator.name + " " + colaborator.last_name
+                        }
+
                         r.table("messages")
-                            .insert(newMessage.dataValues)
+                            .insert(finalMessage)
                             .run(conn, async (err, result) => {
                                 if (err) reject(badreq(err.message));
                                 else {
@@ -87,6 +97,14 @@ messageService.getByChannelPaginate = (
     return new Promise(async (resolve, reject) => {
         try {
             const messages = await MessagesModel.findAndCountAll({
+                include: [{
+                    model: ColaboratorModel,
+                    attributes: [
+                        'name', 
+                        'last_name', 
+                        [Sequelize.fn('concat', Sequelize.col('name'), ' ',  Sequelize.col('last_name')), 'colaborator']
+                    ]
+                }],
                 where: {
                     channel_id: channel_id,
                 },

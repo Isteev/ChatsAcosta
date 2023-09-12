@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import { sequelizeConn } from "../../config/sequalize.js";
+import { ColaboratorModel } from "../colaborator/colaboratorsModel.js";
 
 export const ChannelModel = sequelizeConn.define(
     "channel",
@@ -36,3 +37,10 @@ export const ChannelModel = sequelizeConn.define(
         freezeTableName: false,
     }
 );
+
+ColaboratorModel.hasMany(ChannelModel, {foreignKey: "colaborator_id", sourceKey: "id"});
+
+ChannelModel.belongsTo(ColaboratorModel, {
+    foreignKey: "colaborator_id",
+    sourceKey: "id",
+});

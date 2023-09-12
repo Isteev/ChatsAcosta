@@ -51,3 +51,4 @@ ColaboratorModel.belongsTo(CompanyModel, {
     foreignKey: "company_id",
     targetKey: "id",
 });
+

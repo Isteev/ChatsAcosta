@@ -175,4 +175,17 @@ colaboratorServices.setActiveStatus = async (id, body) => {
     }
 };
 
+colaboratorServices.getByid = async (id) => {
+    try {
+        const colaborator = await ColaboratorModel.findOne({
+            where: { id: id, status: 1 },
+        });
+
+        return colaborator;
+    } catch (error) {
+        return fatalError(error.message);
+    }
+};
+
+
 export default colaboratorServices;
