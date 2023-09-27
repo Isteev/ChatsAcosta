@@ -49,6 +49,9 @@ export const MessagesModel = sequelizeConn.define(
             defaultValue: "user",
             allowNull: false,
         },
+        url_file: {
+            type: DataTypes.STRING,
+        },
         status: {
             type: DataTypes.TINYINT,
             defaultValue: 1,
@@ -60,15 +63,20 @@ export const MessagesModel = sequelizeConn.define(
     }
 );
 
-
-ChannelModel.hasMany(MessagesModel, {as: "messages", foreignKey: "channel_id"});
+ChannelModel.hasMany(MessagesModel, {
+    as: "messages",
+    foreignKey: "channel_id",
+});
 
 MessagesModel.belongsTo(ChannelModel, {
     foreignKey: "company_id",
     sourceKey: "id",
 });
 
-ColaboratorModel.hasMany(MessagesModel, {foreignKey: "colaborator_id", sourceKey: "id"});
+ColaboratorModel.hasMany(MessagesModel, {
+    foreignKey: "colaborator_id",
+    sourceKey: "id",
+});
 
 MessagesModel.belongsTo(ColaboratorModel, {
     foreignKey: "colaborator_id",

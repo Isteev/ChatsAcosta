@@ -17,11 +17,15 @@ import { Sequelize } from "sequelize";
 
 const messageService = {};
 
-messageService.addAction = (body) => {
+messageService.addAction = (body, file) => {
     return new Promise(async (resolve, reject) => {
         try {
             delete body.id;
             const conn = await getRethinkDB();
+
+            if (file) {
+                body.url_file = file.location;
+            }
 
             channelsService
                 .getById(body.channel_id)
@@ -32,12 +36,15 @@ messageService.addAction = (body) => {
                     });
 
                     if (newMessage) {
-                        const colaborator = await colaboratorServices.getByid(data.colaborator_id);
+                        const colaborator = await colaboratorServices.getByid(
+                            data.colaborator_id
+                        );
 
                         const finalMessage = {
                             ...newMessage.dataValues,
-                            colaborator: colaborator.name + " " + colaborator.last_name
-                        }
+                            colaborator:
+                                colaborator.name + " " + colaborator.last_name,
+                        };
 
                         r.table("messages")
                             .insert(finalMessage)
@@ -62,17 +69,16 @@ messageService.addAction = (body) => {
 
 messageService.sendEndMessage = async (body) => {
     try {
-        
         const meeting = await MeetignsModel.findOne({
             where: {
                 company_id: body.company_id,
                 channel_id: body.channel_id,
-                active: 1
+                active: 1,
             },
-            order: [['id', 'DESC']]
+            order: [["id", "DESC"]],
         });
 
-        if(!meeting){
+        if (!meeting) {
             return badreq("No hay un meet activo");
         }
 
@@ -83,11 +89,10 @@ messageService.sendEndMessage = async (body) => {
 
         const res = await messageService.addAction(body);
         return res;
-
     } catch (error) {
-        return fatalError(error.message)
+        return fatalError(error.message);
     }
-}
+};
 
 messageService.getByChannelPaginate = (
     channel_id,
@@ -97,14 +102,24 @@ messageService.getByChannelPaginate = (
     return new Promise(async (resolve, reject) => {
         try {
             const messages = await MessagesModel.findAndCountAll({
-                include: [{
-                    model: ColaboratorModel,
-                    attributes: [
-                        'name', 
-                        'last_name', 
-                        [Sequelize.fn('concat', Sequelize.col('name'), ' ',  Sequelize.col('last_name')), 'colaborator']
-                    ]
-                }],
+                include: [
+                    {
+                        model: ColaboratorModel,
+                        attributes: [
+                            "name",
+                            "last_name",
+                            [
+                                Sequelize.fn(
+                                    "concat",
+                                    Sequelize.col("name"),
+                                    " ",
+                                    Sequelize.col("last_name")
+                                ),
+                                "colaborator",
+                            ],
+                        ],
+                    },
+                ],
                 where: {
                     channel_id: channel_id,
                 },

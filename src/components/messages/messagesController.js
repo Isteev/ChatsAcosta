@@ -3,10 +3,15 @@ import messageService from "./messagesServices.js";
 const messageController = {};
 
 messageController.addAction = (req, res) => {
-    const { body } = req;
+    const { files, body } = req;
+
+    let file = null;
+    if (files && files.length > 0) {
+        file = files[0];
+    }
 
     messageService
-        .addAction(body)
+        .addAction(body, file)
         .then(({ status, result }) => {
             res.status(status).send(result);
         })
