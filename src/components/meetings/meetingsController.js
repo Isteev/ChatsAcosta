@@ -18,10 +18,11 @@ meetignController.addAction = (req, res) => {
 meetignController.getByChannel = (req, res) => {
     const {
         params: { channel_id },
+        query: { send_message }
     } = req;
 
     meetingService
-        .getByChannel(channel_id)
+        .getByChannel(channel_id, send_message)
         .then(({ status, result }) => {
             res.status(status).send(result);
         })

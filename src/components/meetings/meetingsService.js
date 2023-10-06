@@ -1,6 +1,7 @@
 import ioEmmit from "../../../index.js";
 import { sequelizeConn } from "../../config/sequalize.js";
 import { badreq, fatalError, success } from "../../utils/utils.js";
+import messageService from "../messages/messagesServices.js";
 import { MeetignsModel } from "./meetingsModel.js";
 
 const meetingService = {};
@@ -27,7 +28,7 @@ meetingService.addAction = (body) => {
     });
 };
 
-meetingService.getByChannel = (channel_id) => {
+meetingService.getByChannel = (channel_id, send_message) => {
     return new Promise(async (resolve, reject) => {
         try {
             const meetign = await MeetignsModel.findOne({
@@ -36,6 +37,10 @@ meetingService.getByChannel = (channel_id) => {
 
             if (meetign) {
                 resolve(success(meetign));
+            } else if (send_message == 'send') {
+                messageService.sendWelcomeMessage(channel_id)
+                    .catch(() => { })
+                    .finally(() => reject(badreq("No hay meetings activos con este canal")));
             } else {
                 reject(badreq("No hay meetings activos con este canal"));
             }

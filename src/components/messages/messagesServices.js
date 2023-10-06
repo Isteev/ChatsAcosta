@@ -5,15 +5,17 @@ import {
     successPaginate,
 } from "../../utils/utils.js";
 import channelsService from "../channels/channelsServices.js";
+import colaboratorServices from "../colaborator/colaboratorService.js";
+import companysServices from "../company/companysServices.js";
+//models
 import { MessagesModel } from "./messagesModel.js";
+import { MeetignsModel } from "../meetings/meetingsModel.js";
+import { ColaboratorModel } from "../colaborator/colaboratorsModel.js";
+import { Sequelize } from "sequelize";
 
 //rethinkdb
 import getRethinkDB from "../../config/rethinkdb.js";
 import r from "rethinkdb";
-import { MeetignsModel } from "../meetings/meetingsModel.js";
-import colaboratorServices from "../colaborator/colaboratorService.js";
-import { ColaboratorModel } from "../colaborator/colaboratorsModel.js";
-import { Sequelize } from "sequelize";
 
 const messageService = {};
 
@@ -88,6 +90,34 @@ messageService.sendEndMessage = async (body) => {
         body.meeting_id = meeting.id;
 
         const res = await messageService.addAction(body);
+        return res;
+    } catch (error) {
+        return fatalError(error.message);
+    }
+};
+
+messageService.sendWelcomeMessage = async (channel_id) => {
+    try {
+        const { result: { data } } = await channelsService.getById(channel_id);
+
+        if (!data) return badreq('no existe ese canal');
+
+        const { result } = await companysServices.getById(data.company_id);
+
+        if (!result.data.welcome_message) return badreq('No hay welcome_message definido')
+
+        const bodyMessage = {
+            content: result.data.welcome_message,
+            type: 1,
+            user_id: data.user_id,
+            channel_id: channel_id,
+            colaborator_id: data.colaborator_id,
+            company_id: result.data.id,
+            message_user_type: 'colaborator',
+            createdAt: new Date().toISOString()
+        }
+
+        const res = await messageService.addAction(bodyMessage);
         return res;
     } catch (error) {
         return fatalError(error.message);

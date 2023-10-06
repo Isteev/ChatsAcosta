@@ -30,6 +30,10 @@ export const CompanyModel = sequelizeConn.define(
         phone: {
             type: DataTypes.INTEGER,
         },
+        welcome_message: {
+            type: DataTypes.TEXT,
+            defaultValue: `Bienvenido \nSera atendido en un momento.`
+        },
         status: {
             type: DataTypes.TINYINT,
             defaultValue: 1,
